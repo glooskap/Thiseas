@@ -31,7 +31,7 @@ public class List<T> {
 	
 	public void insert(T Item) {
 		
-		Node<T> node = new Node<T>(Item);
+		Node<T> node = new Node<>(Item);
 		if ( isEmpty() )
 			first = last = node;
 		else {

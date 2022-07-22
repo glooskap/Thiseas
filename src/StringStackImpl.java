@@ -10,7 +10,7 @@ public class StringStackImpl implements StringStack{
 	}
 	
 	public StringStackImpl(String name) {
-		list = new List<String>(name);
+		list = new List<>(name);
 	}
 	
 	public boolean isEmpty() {
