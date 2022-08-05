@@ -2,10 +2,9 @@
 
 ### Data Structures course assignment
 Use a stack to traverse the pathways of a Labyrinth and guide Thiseas to the exit.
-- **Do not use java util structures**
-- run with the labyrinth file as an arguement
----
-`java Thiseas path_to_file/LabyrinthFile.txt`
+- **Do not use java.util structures**
+- run with a labyrinth file as an arguement [^1]
+[^1]: `java Thiseas path_to_file/LabyrinthFile.txt`
 
 ### input file format:
 
@@ -21,7 +20,6 @@ Use a stack to traverse the pathways of a Labyrinth and guide Thiseas to the exi
 10. 1 0 1 1 0 0 1
 11. 0 1 1 1 0 1 1
 ---
-### input file index:
 - 1st line: labyrinth dimensions
 - 2nd line: entrance coordinates
 - E: entrance (unique)
