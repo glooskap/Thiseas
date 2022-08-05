@@ -1,8 +1,14 @@
 # Thiseas :: escape the labyrinth
-`java Thiseas path_to_file/filename.txt`
+
+### Data Structures course assignment
+Use a stack to traverse the pathways of a Labyrinth and guide Thiseas to the exit.
+- **Do not use java util structures**
+- run with the labyrinth file as an arguement
+---
+`java Thiseas path_to_file/LabyrinthFile.txt`
 
 ### input file format:
----
+
 1. 9 7
 2. 0 3
 3. 1 1 1 Ε 1 1 1
