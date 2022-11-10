@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 public class Labyrinth {
 	
@@ -14,8 +13,10 @@ public class Labyrinth {
 	private BufferedReader reader;
 	private int length;
 	private int width;
-	private String[][] maze;
+	private int[][] maze;
 	private String entrance;
+	private int entranceX;
+	private int entranceY;
 
 	public Labyrinth() { this(System.out); }
 	
@@ -27,6 +28,7 @@ public class Labyrinth {
 		try {
 			file = new File(path);
 		} catch (NullPointerException e) {
+			e.printStackTrace(ps);
 			ps.println("Error! File not found.");
 		}
 	}
@@ -35,6 +37,7 @@ public class Labyrinth {
 		try {
 			reader =  new BufferedReader(new InputStreamReader(new FileInputStream(file)));
 		} catch (FileNotFoundException e) {
+			e.printStackTrace(ps);
 			ps.println("Error opening file!");
 		}
 	}
@@ -43,56 +46,56 @@ public class Labyrinth {
 		try {
 			reader.close();
 		} catch (IOException e) {
+			e.printStackTrace(ps);
 			ps.println("Error closing file!");
 		}
 	}
-	
-	private Boolean drawMaze() {
-		
+
+	private boolean drawMaze() throws DrawException {
 		int counter = 0;
 		String line;
 
 		try {
 			line = reader.readLine();
 			counter++;
-			
-			String[] lt;
-			lt = line.trim().split(" ");
-			length = Integer.parseInt(lt[0]);
-			width = Integer.parseInt(lt[1]);
-			
-			line = reader.readLine();
-			counter++;
-			lt = line.trim().split(" ");
 
-			try {
-				entrance = (Integer.parseInt(lt[0])) + "," + (Integer.parseInt(lt[1]));
-			} catch (NumberFormatException e) {
-				ps.println("Error! Invalid entrance given");
-				return false;
+			String[] lineSplit = line.trim().split(" ");
+			if (lineSplit.length != 2) {
+				throw new DrawException("1st line should contain labyrinth' dimensions");
 			}
+			length = Integer.parseInt(lineSplit[0]);
+			width = Integer.parseInt(lineSplit[1]);
 
 			line = reader.readLine();
 			counter++;
-			
-			int i, j;
-			i = 1;
+			lineSplit = line.trim().split(" ");
+			if (lineSplit.length != 2) {
+				throw new DrawException("2nd line should contain entrance coordinates");
+			}
+			entranceX = Integer.parseInt(lineSplit[0]);
+			entranceY = Integer.parseInt(lineSplit[1]);
+			entrance = entranceX++ +","+ entranceY++;
+
+			line = reader.readLine();
+			counter++;
 
 			//append dimensions
-			String[][] paths = new String[length+2][width+2];
-			
+			int[][] paths = new int[length+2][width+2];//?
+
+			int i=1, j;
 			while( line != null &&  i <= length) {
-				
-				lt = line.trim().split(" ");
-				
-				if ( lt.length > width ) {
-					ps.println("Error! Wrong dimensions given");
-					return false;
-				}
-				else {
+
+				lineSplit = line.trim().split(" ");
+
+				if ( lineSplit.length > width ) {
+					throw new DrawException("Wrong dimensions given");
+				} else {
 					j = 1;
-					for ( String s: lt) {
-						paths[i][j] = s;
+					for ( String s: lineSplit) {
+						if (i==entranceX && j==entranceY)
+							paths[i][j] = 0;//open the entrance
+						else
+							paths[i][j] = Integer.parseInt(s);
 						j++;
 					}
 				}
@@ -103,101 +106,86 @@ public class Labyrinth {
 
 			//surround the map with 2's
 			for ( i =0; i<=width+1; i++) {
-				paths[length+1][i] = "2";
-				paths[0][i] = "2";
+				paths[length+1][i] = 2;
+				paths[0][i] = 2;
 			}
 			for ( i =0; i<=length+1; i++) {
-				paths[i][width+1] = "2";
-				paths[i][0] = "2";
+				paths[i][width+1] = 2;
+				paths[i][0] = 2;
 			}
 			maze = paths;
-			ps.println(Arrays.deepToString(maze));
 
 		} catch (IOException e) {
-			ps.println("Error! Line " + counter + ": Sudden end.");
-			return false;
+			e.printStackTrace(ps);
+			throw new DrawException("Line " + counter + ": Sudden end.", e.getMessage());
 		}
 		return true;
 	}
-	
-	private boolean escape() {
-		
-		if ( entrance == null ) {
-			ps.println("Error! Invalid entrance given");
-			return false;
-		}
 
-		int y = entrance.indexOf(',');
-		int x = Integer.parseInt(entrance.substring(0,y))+1;
-		y = Integer.parseInt(entrance.substring(y+1))+1;
+	private boolean escapeMaze() throws DrawException {
 
-		ps.println("entry:"+x+","+y);
-		ps.println(maze[x][y]);
-		if ( x >= length || y >= width || x < 0 || y < 0 ) {
-			ps.println("Error! Entrance is out of bounds!");
-			return false;
+		ps.println("entry: "+entrance);
+		if (entranceX>=length || entranceY>=width || entranceX<0 || entranceY<0) {
+			throw new DrawException("Entrance given is out of bounds!");
 		}
-		if ( maze[x][y].equals("E")) {
-			ps.println("Error! Entrance given was closed!"); //entrance coordinates do not correspond to an E on the map
-			return false;
+		if (maze[entranceX][entranceY]!=0) {
+			throw new DrawException("Entrance given was closed!");
 		}
-
 		ps.println("Thiseas has entered the labyrinth!");
-				
+
 		boolean sentinel = true;	// Thiseas still has a chance to escape
 		boolean through = false;	// Thiseas made it
-		int posX = x;
-		int posY = y;
-				
-		StringStackImpl labyStack = new StringStackImpl();
-		labyStack.push(posX+","+posY);
-				
-		while ( !through && sentinel) {
-			if ( maze[posX+1][posY].equals("0")) {
-				maze[++posX][posY] = "2";
-				labyStack.push(posX+","+posY);
-			} else if ( maze[posX][posY-1].equals("0")) {
-				maze[posX][--posY] = "2";
-				labyStack.push(posX+","+posY);
-			} else if ( maze[posX][posY+1].equals("0")) {
-				maze[posX][++posY] = "2";
-				labyStack.push(posX+","+posY);
-			} else if ( maze[posX-1][posY].equals("0")) {
-				maze[--posX][posY] = "2";
-				labyStack.push(posX+","+posY);
+		int posX = entranceX;
+		int posY = entranceY;
+
+		PointStackImpl route = new PointStackImpl();
+		route.push(new Point(posX, posY));
+
+		while (!through && sentinel) {
+			if (maze[posX+1][posY]==0) {
+				maze[++posX][posY] = 2;
+				route.push(new Point(posX, posY));
+			} else if ( maze[posX][posY-1] == 0) {
+				maze[posX][--posY] = 2;
+				route.push(new Point(posX, posY));
+			} else if ( maze[posX][posY+1] == 0) {
+				maze[posX][++posY] = 2;
+				route.push(new Point(posX, posY));
+			} else if ( maze[posX-1][posY] == 0) {
+				maze[--posX][posY] = 2;
+				route.push(new Point(posX, posY));
 			} else {
-				if (!labyStack.isEmpty()) //Thiseas reached a dead end
-					labyStack.pop();
+				if (!route.isEmpty()) //Thiseas reached a dead end and must go back
+					route.pop();
 				else //Thiseas has gone through all possible pathways
 					sentinel = false;
 			}
-					
+
 			if ( posX == 1 || posX == length || posY == 1 || posY == width )
 				through = true;
 			else if (sentinel) {
-				posY = labyStack.peek().indexOf(',');
-				posX = Integer.parseInt(labyStack.peek().substring(0,posY));
-				posY = Integer.parseInt(labyStack.peek().substring(posY+1));
+				posX = route.peek().getX();
+				posY = route.peek().getY();
 			}
 		}
-				
+
 		if (!sentinel) {
 			ps.println("Thiseas couldn't find any exits!");
 			return false;
 		}
-		ps.println("Thiseas exited through: " + labyStack.peek());
+		ps.println("Thiseas exited through: " + route.peek());
 		return true;
 	}
 
-	public boolean solve(String path) {
+	public boolean solve(String path) throws DrawException {
 		boolean ans = false;
 
 		loadFile(path);
 		openFile();
-		
+
 		if (drawMaze()) {
 			ps.println("Thiseas has reached the labyrinth!");
-			ans = escape();
+			ans = escapeMaze();
 		}
 
 		closeFile();
