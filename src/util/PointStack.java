@@ -1,15 +1,23 @@
+package util;
+
+import struct.List;
+import struct.Stack;
+
 import java.io.PrintStream;
 import java.util.NoSuchElementException;
 
-public class PointStackImpl implements PointStack {
+/**
+ * Implements a Stack to handle 2D points
+ */
+public class PointStack implements Stack<Point> {
 
     private List<Point> list;
 
-    public PointStackImpl() {
+    public PointStack() {
         this("PointStack");
     }
 
-    public PointStackImpl(String name) {
+    public PointStack(String name) {
         list = new List<>(name);
     }
 
@@ -18,21 +26,21 @@ public class PointStackImpl implements PointStack {
     }
 
     public void push(Point item) {
-        list.insert(item);
+        list.insertEnd(item);
     }
 
     public Point pop() throws NoSuchElementException {
         if (list.isEmpty())
             throw new NoSuchElementException(list.getName());
 
-        return list.remove();
+        return list.removeEnd();
     }
 
     public Point peek() throws NoSuchElementException {
         if (list.isEmpty())
             throw new NoSuchElementException(list.getName());
 
-        return list.getFirst();
+        return list.getLast();
     }
 
     public void printStack(PrintStream stream) {

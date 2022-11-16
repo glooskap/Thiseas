@@ -1,7 +1,11 @@
+package util;
+
 public class Point {
 
     int x;
     int y;
+
+    public Point() {}
 
     public Point(int x, int y) {
         this.x = x;
@@ -26,6 +30,6 @@ public class Point {
 
     @Override
     public String toString() {
-        return x + ", " + y;
+        return "[" + x + "," + y + "]";
     }
 }

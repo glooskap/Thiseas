@@ -1,10 +1,9 @@
+package struct;
+
 import java.io.PrintStream;
 import java.util.NoSuchElementException;
 
-/**
- * Defines the methods for a Stack that handles a 2D point
- */
-public interface PointStack {
+public interface Stack<T> {
 
     /**
      * @return true if the stack is empty
@@ -12,23 +11,23 @@ public interface PointStack {
     boolean isEmpty();
 
     /**
-     * Push a Point to the stack
+     * Push an object to the stack
      */
-    void push(Point item);
+    void push(T item);
 
     /**
-     * remove and return the item on the top of the stack
+     * remove and return the object on the top of the stack
      * @return the item on the top of the stack
      * @throws NoSuchElementException if the stack is empty
      */
-    Point pop() throws NoSuchElementException;
+    T pop() throws NoSuchElementException;
 
     /**
-     * return without removing the item on the top of the stack
+     * return without removing the object on the top of the stack
      * @return the item on the top of the stack
      * @throws NoSuchElementException if the stack is empty
      */
-    Point peek() throws NoSuchElementException;
+    T peek() throws NoSuchElementException;
 
     /**
      * print the contents of the stack using the provided stream <br>

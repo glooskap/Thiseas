@@ -1,3 +1,5 @@
+package exception;
+
 public class DrawException extends Exception {
 
     private static final String DEFAULT_MESSAGE = "Error drawing the labyrinth";
@@ -9,12 +11,12 @@ public class DrawException extends Exception {
     }
 
     public DrawException(String message) {
-        super(DEFAULT_MESSAGE+"\n"+message);
+        super(DEFAULT_MESSAGE+"\r\n"+message);
         messageCode = null;
     }
 
     public DrawException(String message, String messageCode) {
-        super(DEFAULT_MESSAGE+"\n"+message);
+        super(DEFAULT_MESSAGE+"\r\n"+message);
         this.messageCode = messageCode;
     }
 

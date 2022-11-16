@@ -1,3 +1,7 @@
+import exception.DrawException;
+import util.Point;
+import util.PointStack;
+
 import java.io.PrintStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,9 +18,8 @@ public class Labyrinth {
 	private int length;
 	private int width;
 	private int[][] maze;
-	private String entrance;
-	private int entranceX;
-	private int entranceY;
+	private Point entrance;
+	private Point exit;
 
 	public Labyrinth() { this(System.out); }
 	
@@ -51,7 +54,7 @@ public class Labyrinth {
 		}
 	}
 
-	private boolean drawMaze() throws DrawException {
+	private void drawMaze() throws DrawException {
 		int counter = 0;
 		String line;
 
@@ -72,15 +75,16 @@ public class Labyrinth {
 			if (lineSplit.length != 2) {
 				throw new DrawException("2nd line should contain entrance coordinates");
 			}
-			entranceX = Integer.parseInt(lineSplit[0]);
-			entranceY = Integer.parseInt(lineSplit[1]);
-			entrance = entranceX++ +","+ entranceY++;
+
+			entrance = new Point();
+			entrance.setX(Integer.parseInt(lineSplit[0])+1);
+			entrance.setY(Integer.parseInt(lineSplit[1])+1);
 
 			line = reader.readLine();
 			counter++;
 
 			//append dimensions
-			int[][] paths = new int[length+2][width+2];//?
+			int[][] paths = new int[length+2][width+2];
 
 			int i=1, j;
 			while( line != null &&  i <= length) {
@@ -92,7 +96,7 @@ public class Labyrinth {
 				} else {
 					j = 1;
 					for ( String s: lineSplit) {
-						if (i==entranceX && j==entranceY)
+						if (i==entrance.getX() && j==entrance.getY())
 							paths[i][j] = 0;//open the entrance
 						else
 							paths[i][j] = Integer.parseInt(s);
@@ -105,6 +109,7 @@ public class Labyrinth {
 			}
 
 			//surround the map with 2's
+			//2 indicates an impassable point
 			for ( i =0; i<=width+1; i++) {
 				paths[length+1][i] = 2;
 				paths[0][i] = 2;
@@ -115,33 +120,32 @@ public class Labyrinth {
 			}
 			maze = paths;
 
-		} catch (IOException e) {
+		} catch (NumberFormatException | IOException e) {
 			e.printStackTrace(ps);
-			throw new DrawException("Line " + counter + ": Sudden end.", e.getMessage());
+			throw new DrawException("Line " + counter, e.getMessage());
 		}
-		return true;
 	}
 
-	private boolean escapeMaze() throws DrawException {
+	private void escapeMaze() throws DrawException {
 
-		ps.println("entry: "+entrance);
-		if (entranceX>=length || entranceY>=width || entranceX<0 || entranceY<0) {
+		ps.println("entry: " + entrance);
+		int posX = entrance.getX();
+		int posY = entrance.getY();
+		if (posX>=length || posY>=width || posX<0 || posY<0) {
 			throw new DrawException("Entrance given is out of bounds!");
 		}
-		if (maze[entranceX][entranceY]!=0) {
+		if (maze[posX][posY]!=0) {
 			throw new DrawException("Entrance given was closed!");
 		}
 		ps.println("Thiseas has entered the labyrinth!");
 
-		boolean sentinel = true;	// Thiseas still has a chance to escape
-		boolean through = false;	// Thiseas made it
-		int posX = entranceX;
-		int posY = entranceY;
+		boolean sentinel = true;	//Thiseas still has a chance to escape
 
-		PointStackImpl route = new PointStackImpl();
+		PointStack route = new PointStack();
 		route.push(new Point(posX, posY));
+		maze[posX][posY] = 2;	//cant escape from the entrance
 
-		while (!through && sentinel) {
+		while (exit==null && sentinel) {
 			if (maze[posX+1][posY]==0) {
 				maze[++posX][posY] = 2;
 				route.push(new Point(posX, posY));
@@ -155,26 +159,21 @@ public class Labyrinth {
 				maze[--posX][posY] = 2;
 				route.push(new Point(posX, posY));
 			} else {
-				if (!route.isEmpty()) //Thiseas reached a dead end and must go back
-					route.pop();
-				else //Thiseas has gone through all possible pathways
+				if (!route.isEmpty()) {
+					ps.println("Thiseas reached a dead end at " + route.pop());
+				} else {
 					sentinel = false;
+					ps.println("Thiseas couldn't find any exits!");
+				}
 			}
 
-			if ( posX == 1 || posX == length || posY == 1 || posY == width )
-				through = true;
-			else if (sentinel) {
+			if ( posX == 1 || posX == length || posY == 1 || posY == width ) {
+				exit = route.pop();
+			} else if (sentinel) {
 				posX = route.peek().getX();
 				posY = route.peek().getY();
 			}
 		}
-
-		if (!sentinel) {
-			ps.println("Thiseas couldn't find any exits!");
-			return false;
-		}
-		ps.println("Thiseas exited through: " + route.peek());
-		return true;
 	}
 
 	public boolean solve(String path) throws DrawException {
@@ -183,9 +182,12 @@ public class Labyrinth {
 		loadFile(path);
 		openFile();
 
-		if (drawMaze()) {
-			ps.println("Thiseas has reached the labyrinth!");
-			ans = escapeMaze();
+		drawMaze();
+		ps.println("Thiseas has reached the labyrinth!");
+		escapeMaze();
+		if (exit!=null) {
+			ps.println("Thiseas exited through: " + exit);
+			ans = true;
 		}
 
 		closeFile();

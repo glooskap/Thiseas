@@ -1,3 +1,5 @@
+import exception.DrawException;
+
 import java.io.PrintStream;
 
 public class Thiseas {
@@ -7,7 +9,7 @@ public class Thiseas {
 	public static void main(String[] args) {
 
 		if (args.length != 1) {
-			ps.println("No input provided.\n"
+			ps.println("No input provided.\r\n"
 					+ "Please consult README file for input instructions.");
 			return;
 		}
@@ -17,7 +19,7 @@ public class Thiseas {
 			ps.println(Maze.solve(args[0]) ? "White sails should be risen!" : "Black sails should be risen!");
 		} catch(DrawException e) {
 			e.printStackTrace(ps);
-			ps.println("\nPlease consult README file for input instructions.");
+			ps.println("\r\nPlease consult README file for input instructions.");
 		} catch(Exception e) {
 			e.printStackTrace(ps);
 		}

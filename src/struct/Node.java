@@ -1,3 +1,5 @@
+package struct;
+
 public class Node<T> {
 	
 	T data;

@@ -1,3 +1,5 @@
+package struct;
+
 import java.io.PrintStream;
 
 public class List<T> {
@@ -29,7 +31,7 @@ public class List<T> {
 		this.name = name;
 	}
 	
-	public void insert(T Item) {
+	public void insertStart(T Item) {
 		
 		Node<T> node = new Node<>(Item);
 		if ( isEmpty() )
@@ -41,8 +43,21 @@ public class List<T> {
 		N++;
 		
 	}
+
+	public void insertEnd(T Item) {
+
+		Node<T> node = new Node<>(Item);
+		if ( isEmpty() )
+			first = last = node;
+		else {
+			last.next = node;
+			last = node;
+		}
+		N++;
+
+	}
 	
-	public T remove() {
+	public T removeStart() {
 		
 		T removedItem = last.data;
 		
@@ -54,6 +69,26 @@ public class List<T> {
 		N--;
 		return removedItem;
 		
+	}
+
+	public T removeEnd() {
+
+		T removedItem = last.data;
+
+		if ( first == last )
+			first = last = null;
+		else {
+			Node<T> current = first;
+			while (current.next != last) {
+				current = current.next;
+			}
+			current.next = null;
+			last = current;
+		}
+
+		N--;
+		return removedItem;
+
 	}
 	
 	public void print(PrintStream stream) {
